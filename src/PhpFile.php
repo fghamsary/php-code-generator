@@ -94,6 +94,11 @@ class PhpFile extends DependencyAwareGenerator
         return $this;
     }
 
+    /**
+     * @template T of OOPStructure
+     * @param class-string<T>|null $type
+     * @return T|null
+     */
     public function getOOPStructure(string $name, ?string $type = null): ?OOPStructure
     {
         foreach ($this->oopStructures as $key => $oopStructure) {
@@ -169,6 +174,28 @@ class PhpFile extends DependencyAwareGenerator
     public function getInterface(string $name): ?PhpInterface
     {
         return $this->getOOPStructure($name, PhpInterface::class);
+    }
+
+    public function addEnum(Enum $enum): self
+    {
+        $this->oopStructures[] = $enum;
+
+        return $this;
+    }
+
+    public function createEnum(string $name): Enum
+    {
+        return $this->oopStructures[] = Enum::new($name);
+    }
+
+    public function removeEnum(string $name): self
+    {
+        return $this->removeOOPStructure($name, Enum::class);
+    }
+
+    public function getEnum(string $name): ?Enum
+    {
+        return $this->getOOPStructure($name, Enum::class);
     }
 
     public function getNamespace(): string
