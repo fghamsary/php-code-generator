@@ -110,6 +110,7 @@ class PhpFileTest extends TestCase
 
     /**
      * @test
+     *
      * @depends fullBuild
      */
     public function modifyFile(PhpFile $file): PhpFile
@@ -140,6 +141,7 @@ class PhpFileTest extends TestCase
 
     /**
      * @test
+     *
      * @depends modifyFile
      */
     public function modifyComments(PhpFile $file): PhpFile
@@ -171,6 +173,7 @@ class PhpFileTest extends TestCase
 
     /**
      * @test
+     *
      * @depends modifyComments
      */
     public function saveFile(PhpFile $file): PhpFile

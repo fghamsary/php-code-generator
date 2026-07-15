@@ -11,22 +11,21 @@ class Property extends DependencyAwareGenerator
      */
     public const NO_PARAM = INF;
 
-    public string   $name;
     public ?Comment $docBlock = null;
-    public bool     $isNullable = false;
-    public bool     $isStatic = false;
-    public bool     $isConst = false;
+    public bool $isNullable = false;
+    public bool $isStatic = false;
+    public bool $isConst = false;
 
     private string $value = '';
-    private string $modifier;
+    private Modifier $modifier;
     private string $typeHint;
 
-    /**
-     * @param mixed $defaultValue
-     */
-    final public function __construct(string $name, ?string $modifier, string $typeHint = '', $defaultValue = self::NO_PARAM)
-    {
-        $this->name = $name;
+    final public function __construct(
+        public string $name,
+        ?Modifier $modifier,
+        string $typeHint = '',
+        mixed $defaultValue = self::NO_PARAM,
+    ) {
         $this->modifier = $modifier ?? Modifier::PUBLIC;
         $this->typeHint = $this->resolveQualifier($typeHint);
 
@@ -40,15 +39,13 @@ class Property extends DependencyAwareGenerator
     }
 
     /**
-     * @param mixed $value
-     *
      * @return static
      */
     public static function new(
         string $name,
-        ?string $modifier = Modifier::PUBLIC,
+        ?Modifier $modifier = Modifier::PUBLIC,
         string $typeHint = '',
-        $value = self::NO_PARAM
+        mixed $value = self::NO_PARAM,
     ): self {
         return new static($name, $modifier, $typeHint, $value);
     }
@@ -69,10 +66,10 @@ class Property extends DependencyAwareGenerator
         }
 
         if ($this->isConst) {
-            return "$docBlock$this->modifier const $this->name$value";
+            return "$docBlock{$this->modifier->value} const $this->name$value";
         }
 
-        return "{$docBlock}{$this->modifier} {$isStatic}{$typeHint}$$this->name{$value}";
+        return "$docBlock{$this->modifier->value} {$isStatic}{$typeHint}$$this->name{$value}";
     }
 
     public function getName(): string
@@ -87,7 +84,7 @@ class Property extends DependencyAwareGenerator
         return $this;
     }
 
-    public function getModifier(): string
+    public function getModifier(): Modifier
     {
         return $this->modifier;
     }
@@ -98,8 +95,6 @@ class Property extends DependencyAwareGenerator
     }
 
     /**
-     * @param mixed $value
-     *
      * @return $this
      */
     public function setDefaultValue($value): self
@@ -141,21 +136,21 @@ class Property extends DependencyAwareGenerator
 
     public function setPublic(): self
     {
-        $this->modifier = 'public';
+        $this->modifier = Modifier::PUBLIC;
 
         return $this;
     }
 
     public function setPrivate(): self
     {
-        $this->modifier = 'private';
+        $this->modifier = Modifier::PRIVATE;
 
         return $this;
     }
 
     public function setProtected(): self
     {
-        $this->modifier = 'protected';
+        $this->modifier = Modifier::PROTECTED;
 
         return $this;
     }

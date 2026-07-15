@@ -13,27 +13,20 @@ class Signature extends DependencyAwareGenerator
 {
     use DocBlockTrait;
 
-    public string $name;
-    public bool   $isStatic = false;
-    public string $modifier;
-    public bool   $isMultiline = false;
+    public bool $isStatic = false;
+    public bool $isMultiline = false;
 
     protected string $returnType = '';
-    protected array  $args = [];
-    protected array  $uses = []; // variables of parent scope
-    protected string $qualifier;
+    protected array $args = [];
+    protected array $uses = []; // variables of parent scope
 
     public function __construct(
-        string $name = '',
-        string $modifier = Modifier::NONE,
+        public string $name = '',
+        public Modifier $modifier = Modifier::NONE,
         string $returnType = '',
-        string $qualifier = 'function '
+        protected string $qualifier = 'function ',
     ) {
-        $this->name = $name;
-        $this->modifier = $modifier;
         $this->returnType = $this->resolveQualifier($returnType);
-        $this->qualifier = $qualifier;
-
         $this->dependencyAwareChildren = [&$this->args];
     }
 
@@ -56,8 +49,6 @@ class Signature extends DependencyAwareGenerator
      * Some arguments are stored as simple strings for better performance.
      * If they are requested, they are first converted into objects then
      * returned back.
-     *
-     * @return Argument
      */
     public function getArgument(int $index = 1): ?Argument
     {
@@ -95,28 +86,23 @@ class Signature extends DependencyAwareGenerator
         return $this;
     }
 
-    /**
-     * @param mixed $defaultValue
-     */
     public function createArgument(
         string $name,
         string $type = '',
-        $defaultValue = Argument::NO_PARAM,
-        string $modifier = Modifier::NONE
+        mixed $defaultValue = Argument::NO_PARAM,
+        Modifier $modifier = Modifier::NONE,
     ): Argument {
         return $this->args[] = new Argument($name, $type, $defaultValue, $modifier);
     }
 
     /**
-     * @param mixed$defaultValue
-     *
      * @return $this
      */
     public function addArgument(
         string $name,
         string $type = '',
-        $defaultValue = Argument::NO_PARAM,
-        string $modifier = Modifier::NONE
+        mixed $defaultValue = Argument::NO_PARAM,
+        Modifier $modifier = Modifier::NONE,
     ): self {
         if (1 === func_num_args()) {
             $this->args[] = "$$name";
@@ -144,9 +130,7 @@ class Signature extends DependencyAwareGenerator
      */
     public function add(FunctionMemberInterface $member): self
     {
-        if ($member instanceof Argument) {
-            $this->args[] = $member;
-        }
+        $this->args[] = $member;
 
         return $this;
     }
@@ -185,7 +169,7 @@ class Signature extends DependencyAwareGenerator
 
         $uses = '';
         $isStatic = $this->isStatic ? 'static ' : '';
-        $modifier = $this->modifier ? "$this->modifier " : '';
+        $modifier = $this->modifier !== Modifier::NONE ? "{$this->modifier->value} " : '';
         $returnType = '';
 
         if (!empty($this->uses)) {
@@ -219,6 +203,20 @@ class Signature extends DependencyAwareGenerator
     public function unsetMultiline(): self
     {
         $this->isMultiline = false;
+
+        return $this;
+    }
+
+    public function setModifier(Modifier $modifier): self
+    {
+        $this->modifier = $modifier;
+
+        return $this;
+    }
+
+    public function unsetModifier(): self
+    {
+        $this->modifier = Modifier::NONE;
 
         return $this;
     }

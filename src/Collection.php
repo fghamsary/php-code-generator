@@ -4,26 +4,20 @@ declare(strict_types=1);
 
 namespace Murtukov\PHPCodeGenerator;
 
-use Closure;
 use function count;
-use function is_bool;
 use function is_callable;
 
 class Collection extends DependencyAwareGenerator
 {
-    protected array  $items = [];
-    protected bool   $multiline = false;
-    protected bool   $withKeys = true;
-    protected array  $converters = [];
+    protected array $converters = [];
     protected string $orderBy = 'none';
-
     protected Utils $utils;
 
-    final private function __construct(array $items = [], bool $multiline = false, bool $withKeys = true)
-    {
-        $this->items = $items;
-        $this->multiline = $multiline;
-        $this->withKeys = $withKeys;
+    final private function __construct(
+        protected array $items = [],
+        protected bool $multiline = false,
+        protected bool $withKeys = true,
+    ) {
         $this->utils = new Utils();
     }
 
@@ -46,11 +40,11 @@ class Collection extends DependencyAwareGenerator
     }
 
     /**
-     * Creates a multiline array and adds all provided items, after applying a callback to them.
+     * Creates a multiline array and adds all provided items after applying a callback to them.
      *
      * @return static
      */
-    public static function map(array $items, callable $map, bool $withKeys = true): self
+    public static function map(iterable $items, callable $map, bool $withKeys = true): self
     {
         $array = new static([], true, $withKeys);
 
@@ -64,11 +58,9 @@ class Collection extends DependencyAwareGenerator
     /**
      * Adds item to the array.
      *
-     * @param mixed $value
-     *
      * @return $this
      */
-    public function addItem(string $key, $value): self
+    public function addItem(string $key, mixed $value): self
     {
         $this->items[$key] = $value;
 
@@ -80,11 +72,9 @@ class Collection extends DependencyAwareGenerator
     }
 
     /**
-     * Adds item to the array if it's not equal null.
-     *
-     * @param mixed $value
+     * Adds an item to the array if it's not equal null.
      */
-    public function addIfNotNull(string $key, $value): self
+    public function addIfNotNull(string $key, mixed $value): self
     {
         if (null === $value) {
             return $this;
@@ -96,11 +86,9 @@ class Collection extends DependencyAwareGenerator
     /**
      * Adds item to the array if it's not empty.
      *
-     * @param mixed $value
-     *
      * @return $this
      */
-    public function addIfNotEmpty(string $key, $value): self
+    public function addIfNotEmpty(string $key, mixed $value): self
     {
         if (empty($value)) {
             return $this;
@@ -112,11 +100,9 @@ class Collection extends DependencyAwareGenerator
     /**
      * Adds item to the array if it's not equal false.
      *
-     * @param mixed $value
-     *
      * @return $this
      */
-    public function addIfNotFalse(string $key, $value): self
+    public function addIfNotFalse(string $key, mixed $value): self
     {
         if (false === $value) {
             return $this;
@@ -127,20 +113,14 @@ class Collection extends DependencyAwareGenerator
 
     /**
      * Returns self if value is true or callback returns true, otherwise returns a mock object.
-     *
-     * @param bool|Closure $value
-     *
-     * @return self|Mock
      */
-    public function ifTrue($value)
+    public function ifTrue(mixed $value): self|Mock
     {
-        if (is_bool($value)) {
-            return $value ? $this : Mock::getInstance($this);
-        } elseif (is_callable($value)) {
-            return $value() ? $this : Mock::getInstance($this);
+        if (is_callable($value)) {
+            $value = $value(); // unwrap the closure
         }
 
-        return Mock::getInstance($this);
+        return $value ? $this : Mock::getInstance($this);
     }
 
     public function getConverters(): array
@@ -181,10 +161,7 @@ class Collection extends DependencyAwareGenerator
         return count($this->items);
     }
 
-    /**
-     * @return GeneratorInterface|string|null
-     */
-    public function getFirstItem()
+    public function getFirstItem(): array|null
     {
         return reset($this->items) ?: null;
     }
@@ -207,10 +184,7 @@ class Collection extends DependencyAwareGenerator
         );
     }
 
-    /**
-     * @param string|GeneratorInterface $item
-     */
-    public function push($item): self
+    public function push(GeneratorInterface|string $item): self
     {
         $this->items[] = $item;
 

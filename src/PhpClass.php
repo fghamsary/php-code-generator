@@ -9,9 +9,10 @@ use function join;
 class PhpClass extends OOPStructure
 {
     protected string $extends = '';
-    protected bool   $isAbstract = false;
-    protected bool   $isFinal = false;
-    protected array  $implements = [];
+    protected bool $isAbstract = false;
+    protected bool $isFinal = false;
+    protected array $implements = [];
+    protected Method $constructor;
 
     public function setExtends(string $fqcn): self
     {
@@ -58,26 +59,22 @@ class PhpClass extends OOPStructure
     }
 
     /**
-     * @param mixed $value
-     *
      * @return $this
      */
-    public function addConst(string $name, $value, string $modifier = Modifier::PUBLIC): self
+    public function addConst(string $name, mixed $value, Modifier $modifier = Modifier::PUBLIC): self
     {
         return $this->append(Property::new($name, $modifier, '', $value)->setConst());
     }
 
     /**
-     * @param mixed $defaulValue
-     *
      * @return $this
      */
-    public function addProperty(string $name, string $modifier = Modifier::PUBLIC, string $type = '', $defaulValue = ''): self
+    public function addProperty(string $name, Modifier $modifier = Modifier::PUBLIC, string $type = '', mixed $defaulValue = ''): self
     {
         return $this->append(new Property($name, $modifier, $type, $defaulValue));
     }
 
-    public function addMethod(string $name, string $modifier = 'public', string $returnType = ''): self
+    public function addMethod(string $name, Modifier $modifier = Modifier::PUBLIC, string $returnType = ''): self
     {
         return $this
             ->append(new Method($name, $modifier, $returnType))
@@ -85,7 +82,7 @@ class PhpClass extends OOPStructure
         ;
     }
 
-    public function createMethod(string $name, string $modifier = 'public', string $returnType = ''): Method
+    public function createMethod(string $name, Modifier $modifier = Modifier::PUBLIC, string $returnType = ''): Method
     {
         $method = new Method($name, $modifier, $returnType);
 
@@ -94,13 +91,29 @@ class PhpClass extends OOPStructure
         return $method;
     }
 
-    public function createConstructor(string $modifier = 'public'): Method
+    public function createConstructor(Modifier $modifier = Modifier::PUBLIC): Method
     {
-        $constructor = new Method('__construct', $modifier, '');
+        $this->constructor = new Method('__construct', $modifier, '');
 
-        $this->append($constructor)->emptyLine();
+        $this->append($this->constructor)->emptyLine();
 
-        return $constructor;
+        return $this->constructor;
+    }
+
+    public function addPromotedProperty(
+        string $name,
+        Modifier $modifier = Modifier::PUBLIC,
+        string $type = '', 
+        mixed $defaultValue = Argument::NO_PARAM
+    ): self {
+        if (empty($this->constructor)) {
+            $this->createConstructor();
+            $this->constructor->signature->setMultiline();
+        }
+
+        $this->constructor->addArgument($name, $type, $defaultValue, $modifier);
+
+        return $this;
     }
 
     public function generate(): string

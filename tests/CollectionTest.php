@@ -26,6 +26,7 @@ class CollectionTest extends TestCase
 
     /**
      * @test
+     *
      * @depends emptyAssoc
      */
     public function addItemsAssoc(Collection $collection): void
@@ -40,7 +41,7 @@ class CollectionTest extends TestCase
             ->addItem('money', null)
             ->addItem('friends', ['Alex', 'Mary', 'Paul'])
             ->addItem('foes', Collection::numeric(['Max', 'Joel', 'Bryan'], true))
-            ->addItem('colleаgues', Collection::assoc([
+            ->addItem('colleagues', Collection::assoc([
                 'Jane' => [
                     'position' => 'designer',
                     'age' => 30,
@@ -67,7 +68,7 @@ class CollectionTest extends TestCase
                 'Joel',
                 'Bryan',
             ],
-            'colleаgues' => [
+            'colleagues' => [
                 'Jane' => [
                     'position' => 'designer',
                     'age' => 30,
@@ -111,7 +112,7 @@ class CollectionTest extends TestCase
             ->setMultiline()
         ;
 
-        $this->assertEquals(5, $collection->count());
+        $this->assertEquals(6, $collection->count());
         $this->assertEquals(['Jack', 'Black'], $collection->getFirstItem());
 
         $this->assertEquals(<<<CODE
@@ -121,13 +122,14 @@ class CollectionTest extends TestCase
             'test' => 'Test',
             'test2' => 'value2',
             'test3' => 'value3',
+            'test6' => 'value6',
         ]
         CODE, $collection->generate());
 
         $collection->setInline();
 
         $this->assertEquals(
-            "['names' => ['Jack', 'Black'], 'number' => 1, 'test' => 'Test', 'test2' => 'value2', 'test3' => 'value3']",
+            "['names' => ['Jack', 'Black'], 'number' => 1, 'test' => 'Test', 'test2' => 'value2', 'test3' => 'value3', 'test6' => 'value6']",
             $collection->generate()
         );
     }
@@ -203,15 +205,15 @@ class CollectionTest extends TestCase
      */
     public function stringifyWithCustomConverter(): void
     {
-        $converter = new class() implements ConverterInterface {
-            public function convert($value)
+        $converter = new class implements ConverterInterface {
+            public function convert(mixed $value): Text
             {
                 return new Text(ltrim($value, 'pre_'));
             }
 
-            public function check($string): bool
+            public function check(mixed $value): bool
             {
-                if (\is_string($string) && 'pre_' === substr($string, 0, 4)) {
+                if (is_string($value) && str_starts_with($value, 'pre_')) {
                     return true;
                 }
 

@@ -15,7 +15,6 @@ class PhpFile extends DependencyAwareGenerator
     public const STRICT = 'strict_types';
 
     protected string   $namespace = '';
-    protected string   $name;
     protected ?Comment $comment;
 
     /** @var OOPStructure[] */
@@ -24,9 +23,8 @@ class PhpFile extends DependencyAwareGenerator
     /** @var string[] */
     protected array $declares = [];
 
-    public function __construct(string $name = '')
+    public function __construct(protected string $name = '')
     {
-        $this->name = $name;
         $this->dependencyAwareChildren = [&$this->oopStructures];
     }
 

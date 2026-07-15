@@ -22,7 +22,7 @@ class Config
     ];
 
     /**
-     * A map of FCQNs and their types registered as custom stringifiers.
+     * A map of FQCNs and their types registered as custom stringifiers.
      */
     private static array $customStringifiersTypeMap = [
         // e.g.: 'string' => [App\Stringifiers\ExpressionStringifier, App\Stringifiers\AnotherStringifier],
@@ -54,7 +54,7 @@ class Config
     }
 
     /**
-     * Returns an instance of registered custom stringifier.
+     * Returns an instance of a registered custom stringifier.
      *
      * @return ConverterInterface|null
      */
