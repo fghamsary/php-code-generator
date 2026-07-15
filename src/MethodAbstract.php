@@ -9,16 +9,16 @@ class MethodAbstract extends AbstractFunction implements BlockInterface
     use ScopedContentTrait;
     use DocBlockTrait;
 
-    final public function __construct(string $name, string $modifier = Modifier::PUBLIC, string $returnType = '')
+    final public function __construct(string $name, Modifier $modifier = Modifier::PUBLIC, string $returnType = '')
     {
-        $this->signature = new Signature($name, "$modifier abstract", $returnType);
+        $this->signature = new Signature($name, $modifier, $returnType, 'abstract function ');
         $this->dependencyAwareChildren = [$this->signature];
     }
 
     /**
      * @return static
      */
-    public static function new(string $name, string $modifier = Modifier::PUBLIC, string $returnType = ''): self
+    public static function new(string $name, Modifier $modifier = Modifier::PUBLIC, string $returnType = ''): self
     {
         return new static($name, $modifier, $returnType);
     }

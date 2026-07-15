@@ -82,7 +82,7 @@ class MethodAbstractTest extends TestCase
          * @param string       $arg2
          * @param mixed        $arg3
          */
-        protected abstract static function myMethod(?SplHeap $arg1 = null, string &$arg2 = '', $arg3, $arg4, ...$arg5): Collection;
+        protected static abstract function myMethod(?SplHeap $arg1 = null, string &$arg2 = '', $arg3, $arg4, ...$arg5): Collection;
         CODE);
 
         echo $method;
