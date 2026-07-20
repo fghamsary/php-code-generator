@@ -15,7 +15,7 @@ class PhpFile extends DependencyAwareGenerator
     public const STRICT = 'strict_types';
 
     protected string   $namespace = '';
-    protected ?Comment $comment;
+    protected ?Comment $comment = null;
 
     /** @var OOPStructure[] */
     protected array $oopStructures = [];
@@ -68,12 +68,13 @@ class PhpFile extends DependencyAwareGenerator
             $declareItems[] = "declare($key=$value);";
         }
         $declares = count($declareItems) > 0 ? implode("\n", $declareItems) . "\n" : '';
+        $comment = $this->comment ? "{$this->comment->generate()}\n\n" : '';
         $namespace = $this->namespace ? "\nnamespace $this->namespace;\n" : '';
         $oopStructures = implode("\n\n", $this->oopStructures);
 
         return <<<CODE
         <?php
-        $declares$namespace{$this->buildUseStatements()}
+        $comment$declares$namespace{$this->buildUseStatements()}
         $oopStructures
         CODE;
     }

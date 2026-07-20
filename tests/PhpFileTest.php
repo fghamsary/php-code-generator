@@ -63,6 +63,10 @@ class PhpFileTest extends TestCase
 
         $this->expectOutputString(<<<'CODE'
         <?php
+        /*
+         * This file was generated and should not be modified manually.
+         */
+
         declare(strict_types=1);
 
         namespace App\Converter;
@@ -126,6 +130,9 @@ class PhpFileTest extends TestCase
 
         $this->expectOutputString(<<<'CODE'
         <?php
+        /*
+         * This file was generated and should not be modified manually.
+         */
 
         namespace App\Converter;
 
@@ -167,6 +174,23 @@ class PhpFileTest extends TestCase
          * $firstLine
          */
         CODE, $comment->generate());
+
+        $this->expectOutputString(<<<'CODE'
+        <?php
+        /*
+         * THIS FILE WAS GENERATED.
+         */
+
+        namespace App\Converter;
+
+        class YetAnotherClass
+        {
+        }
+        CODE);
+
+        echo $file;
+
+        $file->removeComment();
 
         return $file;
     }
